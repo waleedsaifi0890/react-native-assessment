@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 // 1. Call login() from useAuth() hook when button is pressed
 // 2. Show loading state (use the loading state variable)
 // 3. Show error message if login fails (use Alert.alert)
-// 
+//
 // Hint: The form validation is already done, just implement handleLogin function!
 
 export default function LoginScreen() {
@@ -30,19 +30,19 @@ export default function LoginScreen() {
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,20 +54,26 @@ export default function LoginScreen() {
     // 3. Call login(email, password) from useAuth
     // 4. Show error with Alert.alert if it fails
     // 5. Set loading to false when done
-    
+
     if (!validateForm()) {
       return;
     }
 
-    // Your code here:
-    // setLoading(true);
-    // try {
-    //   await login(email, password);
-    // } catch (error: any) {
-    //   Alert.alert('Login Failed', error.response?.data?.error || 'Invalid email or password');
-    // } finally {
-    //   setLoading(false);
-    // }
+    // Added loading state to prevent multiple clicks
+    if (loading) return;
+    setLoading(true);
+    try {
+      // Call login function from useAuth hook
+      await login(email, password);
+    } catch (error: any) {
+      // Show error message if login fails
+      Alert.alert(
+        'Login Failed',
+        error?.response?.data?.error || error?.message || 'Something went wrong'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,7 +92,13 @@ export default function LoginScreen() {
               style={[styles.input, errors.email && styles.inputError]}
               placeholder="Enter your email"
               value={email}
-              onChangeText={setEmail}
+              // onChangeText to set email and clear error if email is valid
+              onChangeText={(text) => {
+                setEmail(text);
+                if (errors.email) {
+                  setErrors((prev) => ({ ...prev, email: undefined }));
+                }
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -100,7 +112,13 @@ export default function LoginScreen() {
               style={[styles.input, errors.password && styles.inputError]}
               placeholder="Enter your password"
               value={password}
-              onChangeText={setPassword}
+              // onChangeText to set password and clear error if password is valid
+              onChangeText={(text) => {
+                setPassword(text);
+                if (errors.password) {
+                  setErrors((prev) => ({ ...prev, password: undefined }));
+                }
+              }}
               secureTextEntry
               autoCapitalize="none"
             />
