@@ -33,7 +33,7 @@ interface Goal {
 
 export default function GoalsScreen({ navigation }: any) {
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // By default, loading will be false, until the goals will actually start fetching.
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -47,17 +47,21 @@ export default function GoalsScreen({ navigation }: any) {
     // 3. Update goals state with response.goals
     // 4. Show error with Alert.alert if it fails
     // 5. Set loading to false when done
-    
-    // Your code here:
-    // try {
-    //   setLoading(true);
-    //   const response = await goalService.getGoals();
-    //   setGoals(response.goals || []);
-    // } catch (error) {
-    //   Alert.alert('Error', 'Failed to load goals');
-    // } finally {
-    //   setLoading(false);
-    // }
+
+    try {
+      // Set loading to true
+      setLoading(true);
+      // Call goalService.getGoals()
+      const response = await goalService.getGoals();
+      // Update goals state with response.goals
+      setGoals(response.goals || []);
+    } catch (error) {
+      // Show error with Alert.alert if it fails
+      Alert.alert('Error', 'Failed to load goals');
+    } finally {
+      // Set loading to false when done
+      setLoading(false);
+    }
   };
 
   const onRefresh = async () => {
